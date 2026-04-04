@@ -1,0 +1,104 @@
+// prisma/schema.prisma
+// Run: npx prisma db push  →  creates all tables
+// Run: npx prisma studio   →  visual database browser
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── PRODUCTS ──────────────────────────────
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  originalPrice Float?
+  category    String
+  emoji       String   @default("👗")
+  badge       String?  // "new" | "sale" | "hot"
+  sizes       String[] // ["XS","S","M","L","XL"]
+  images      String[] // Cloudinary URLs
+  inStock     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reviews     Review[]
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+// ── REVIEWS ───────────────────────────────
+model Review {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  emoji     String   // 😍 😊 😐 😕 😞
+  rating    Int      // 1-5
+  text      String
+  createdAt DateTime @default(now())
+
+  @@map("reviews")
+}
+
+// ── ORDERS ────────────────────────────────
+model Order {
+  id           String      @id @default(uuid())
+  customerName String
+  phone        String
+  address      String
+  totalAmount  Float
+  status       OrderStatus @default(PENDING)
+  paymentId    String?     // Razorpay payment ID
+  paymentStatus PaymentStatus @default(PENDING)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  items        OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  size      String
+  quantity  Int
+  price     Float
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// ── ADMIN ─────────────────────────────────
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // bcrypt hashed
+  createdAt DateTime @default(now())
+
+  @@map("admins")
+}
