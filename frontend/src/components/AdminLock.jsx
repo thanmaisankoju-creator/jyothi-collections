@@ -27,7 +27,7 @@ export default function AdminLock() {
       handleClose();
       openAdminPanel();
     } catch {
-      setErr('Incorrect password. Try: jyothi2025');
+      setErr('Incorrect password. Please try again.');
       setShaking(true);
       setTimeout(() => setShaking(false), 500);
       setPw('');
