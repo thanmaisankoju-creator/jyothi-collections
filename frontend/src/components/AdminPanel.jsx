@@ -111,7 +111,12 @@ export default function AdminPanel({ onProductAdded, onToast }) {
             padding:'14px 24px', background:'none', border:'none', borderBottom: tab===t ? '2px solid var(--black)' : '2px solid transparent',
             fontFamily:'var(--font-body)', fontSize:13, fontWeight: tab===t ? 500 : 400,
             color: tab===t ? 'var(--black)' : 'var(--warm-gray)', cursor:'pointer', transition:'color .2s',
-          }}>{lbl}{t==='orders' && orders.length > 0 && <span style={{ marginLeft:6, background:'var(--accent)', color:'#fff', borderRadius:99, padding:'1px 7px', fontSize:10 }}>{orders.length}</span>}</button>
+          }}>
+            {lbl}
+            {t==='orders' && orders.length > 0 && (
+              <span style={{ marginLeft:6, background:'var(--accent)', color:'#fff', borderRadius:99, padding:'1px 7px', fontSize:10 }}>{orders.length}</span>
+            )}
+          </button>
         ))}
       </div>
 
@@ -230,9 +235,8 @@ export default function AdminPanel({ onProductAdded, onToast }) {
                       <div style={{ fontSize:11, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--warm-gray)', fontWeight:500, marginBottom:8 }}>Customer Details</div>
                       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'4px 16px', fontSize:13 }}>
                         <div><strong>Name:</strong> {o.customerName}</div>
-                        <div><strong>Phone:</strong> {o.customerPhone}</div>
-                        <div style={{ gridColumn:'1/-1' }}><strong>Email:</strong> {o.customerEmail}</div>
-                        <div style={{ gridColumn:'1/-1' }}><strong>Address:</strong> {o.address}, {o.city}, {o.pincode}</div>
+                        <div><strong>Phone:</strong> {o.phone}</div>
+                        <div style={{ gridColumn:'1/-1' }}><strong>Address:</strong> {o.address}</div>
                       </div>
                     </div>
 
