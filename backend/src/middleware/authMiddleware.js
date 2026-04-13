@@ -1,9 +1,8 @@
 // backend/src/middleware/authMiddleware.js
 const jwt      = require('jsonwebtoken');
-const bcrypt   = require('bcryptjs');
 const prisma   = require('../config/db');
 
-// ── Protect routes with JWT ──────────────────────────────
+// ── Protect routes with JWT ──────────────────────────────────
 const protect = async (req, res, next) => {
   let token;
 
@@ -13,11 +12,19 @@ const protect = async (req, res, next) => {
 
   if (!token) {
     res.status(401);
-    throw new Error('Not authorised — no token');
+    return next(new Error('Not authorised — no token'));
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Simple password login generates token with id = 'admin'
+    if (decoded.id === 'admin') {
+      req.admin = { id: 'admin', email: 'admin@jyothicollections.com' };
+      return next();
+    }
+
+    // Email/password login — look up in DB
     req.admin = await prisma.admin.findUnique({
       where : { id: decoded.id },
       select: { id: true, email: true },
@@ -30,7 +37,7 @@ const protect = async (req, res, next) => {
   }
 };
 
-// ── Simple password check for quick admin access ─────────
+// ── Simple password check ────────────────────────────────────
 const checkAdminPassword = (req, res, next) => {
   const { password } = req.body;
   if (!password) {
@@ -42,7 +49,7 @@ const checkAdminPassword = (req, res, next) => {
   next();
 };
 
-// ── Generate JWT ─────────────────────────────────────────
+// ── Generate JWT ─────────────────────────────────────────────
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '7d',
